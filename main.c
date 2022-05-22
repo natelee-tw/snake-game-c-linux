@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <time.h>
+#include <curses.h> //linux replacement for conio.h
+#include <ctype.h>
 
 #define N 20
 #define M 40
@@ -72,8 +74,6 @@ void print(){
             }
             if (j==M-1) {
                 printf("%c\n", '|');}
-
-
         }
     }
 
@@ -92,18 +92,90 @@ void print(){
     printf("\n");
 }
 
-void ResetScreenPosition(){
+void resetScreenPosition(){
     system("clear");
     printf("%c[%d;%df",0x1B,0,0);
 }
 
+
+#include <termios.h>
+#include <fcntl.h>
+int kbhit(void)
+{
+    struct termios oldt, newt;
+    int ch;
+    int oldf;
+
+    tcgetattr(STDIN_FILENO, &oldt);
+    newt = oldt;
+    newt.c_lflag &= ~(ICANON | ECHO);
+    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+    oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
+    fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
+
+    ch = getchar();
+
+    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+    fcntl(STDIN_FILENO, F_SETFL, oldf);
+
+    if(ch != EOF)
+    {
+        ungetc(ch, stdin);
+        return 1;
+    }
+
+    return 0;
+}
+
+int getechNoBlock(){
+    if (kbhit()){
+        char c = getchar();
+        ungetch(c);
+        return c;
+    }
+    else
+        return -1;
+}
+
+
+void movement(){
+    char var;
+    var = getechNoBlock();
+    printf("input%c", var);
+    var = tolower(var);
+
+    if (var == 'd') {
+        y++;
+        Head++;
+        Field[x][y] = Head;
+    };
+    if (var == 'a') {
+        y--;
+        Head++;
+        Field[x][y] = Head;
+    };
+    if (var == 'w') {
+        x--;
+        Head++;
+        Field[x][y] = Head;
+    };
+    if (var == 's') {
+        x++;
+        Head++;
+        Field[x][y] = Head;
+    };
+}
+
+
 int main(){
+
     snakeInitialization();
 
     while (Game == 0){
         generateFrog();
+        movement();
         print();
         sleep(1);
-        ResetScreenPosition();
+        resetScreenPosition();
     }
 }

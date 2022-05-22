@@ -1,3 +1,3 @@
-gcc main.c -lncurses && ./a.out
+To run: `clear && gcc main.c -o snake -lncurses && ./snake`
 
-https://www.youtube.com/playlist?list=PL3pKgZpYZLjmNpbeZrcL8pBSq3YPb-8G6
+Walkthrough from: https://www.youtube.com/playlist?list=PL3pKgZpYZLjmNpbeZrcL8pBSq3YPb-8G6
