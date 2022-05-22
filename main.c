@@ -1,8 +1,13 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <time.h>
+
 #define N 20
 #define M 40
 
-int i, j, Field[N][M], x, y, Gy, Head, Tail;
+int i, j, Field[N][M], x, y, Gy, Head, Tail, Game, Frogs;
+
 void snakeInitialization(){
     for (i=0; i<N; i++){
         for(j=0; j<M; j++){
@@ -14,6 +19,8 @@ void snakeInitialization(){
     Head = 5;
     Tail = 1;
     Gy = y;
+    Game = 0; //game ends when Game = 1
+    Frogs = 0;
 
     for (i=0; i<Head; i++){
         Gy++;
@@ -21,7 +28,19 @@ void snakeInitialization(){
     }
 }
 
+void generateFrog(){
+    srand(time(0));
+    int a = 1 + rand() % (N-2); // from 1 to 19
+    int b = 1 + rand() % (M-2); // from 1 to 39
+
+    if (Frogs == 0 && Field[a][b] == 0) {
+        Field[a][b] = -1;
+        Frogs = 1;
+    }
+}
+
 void print(){
+    // draw top lime
     for (i=0; i<=M+1; i++){
         if (i==0){
             printf("%c", 'T');
@@ -35,6 +54,7 @@ void print(){
     }
     printf("\n");
 
+    // draw body
     for (i=0; i<N; i++){
         printf("%c", '|');
         for (j=0; j<M; j++){
@@ -47,11 +67,17 @@ void print(){
             if (Field[i][j] == Head) {
                 printf("%c", 'X');
             }
+            if (Field[i][j] == -1) {
+                printf("%c", 'F');
+            }
             if (j==M-1) {
                 printf("%c\n", '|');}
+
+
         }
     }
 
+    // draw bottom line
     for (i=0; i<=M+1; i++){
         if (i==0){
             printf("%c", 'T');
@@ -66,7 +92,18 @@ void print(){
     printf("\n");
 }
 
+void ResetScreenPosition(){
+    system("clear");
+    printf("%c[%d;%df",0x1B,0,0);
+}
+
 int main(){
     snakeInitialization();
-    print();
+
+    while (Game == 0){
+        generateFrog();
+        print();
+        sleep(1);
+        ResetScreenPosition();
+    }
 }
