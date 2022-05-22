@@ -4,11 +4,13 @@
 #include <time.h>
 #include <curses.h> //linux replacement for conio.h
 #include <ctype.h>
+#include <termios.h>
+#include <fcntl.h>
 
 #define N 20
 #define M 40
 
-int i, j, Field[N][M], x, y, Gy, Head, Tail, Game, Frogs;
+int i, j, Field[N][M], x, y, Gy, Head, Tail, Game, Frogs, a, b, var, dir;
 
 void snakeInitialization(){
     for (i=0; i<N; i++){
@@ -23,6 +25,7 @@ void snakeInitialization(){
     Gy = y;
     Game = 0; //game ends when Game = 1
     Frogs = 0;
+    dir = 'd';
 
     for (i=0; i<Head; i++){
         Gy++;
@@ -98,8 +101,6 @@ void resetScreenPosition(){
 }
 
 
-#include <termios.h>
-#include <fcntl.h>
 int kbhit(void)
 {
     struct termios oldt, newt;
@@ -141,29 +142,34 @@ int getechNoBlock(){
 void movement(){
     char var;
     var = getechNoBlock();
-    printf("input%c", var);
     var = tolower(var);
+    printf("input%c\n", var);
 
-    if (var == 'd') {
+    if (((var == 'd' || var == 'a') || (var == 'w' || var == 's'))
+        && (abs(dir-var) > 5)){
+        dir = var;
+    }
+
+    if (dir == 'd') {
         y++;
         Head++;
         Field[x][y] = Head;
-    };
-    if (var == 'a') {
+    }
+    if (dir == 'a') {
         y--;
         Head++;
         Field[x][y] = Head;
-    };
-    if (var == 'w') {
+    }
+    if (dir == 'w') {
         x--;
         Head++;
         Field[x][y] = Head;
-    };
-    if (var == 's') {
+    }
+    if (dir == 's') {
         x++;
         Head++;
         Field[x][y] = Head;
-    };
+    }
 }
 
 
